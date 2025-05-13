@@ -1,3 +1,5 @@
+import argparse
+from pathlib import Path
 import gradio as gr
 import torch
 from PIL import Image
@@ -33,7 +35,9 @@ def get_device():
     else:
         return "cpu"
 
+
 device = get_device()
+
 
 class ImageDescriber:
     def __init__(self):
@@ -50,9 +54,7 @@ class ImageDescriber:
         disable_torch_init()
         model_name = get_model_name_from_path(model_path)
         self.tokenizer, self.model, self.image_processor, self.context_len = (
-            load_pretrained_model(
-                model_path, None, model_name, device=device
-            )
+            load_pretrained_model(model_path, None, model_name, device=device)
         )
         self.current_model = model_path
 
@@ -169,7 +171,7 @@ with gr.Blocks() as demo:
                 # lines=10,
                 max_lines=1000,
                 show_copy_button=True,
-                autoscroll=True
+                autoscroll=True,
             )
             run_button = gr.Button("Generate Description", variant="primary")
 
@@ -179,7 +181,7 @@ with gr.Blocks() as demo:
         inputs=[image_input, prompt_input],
         outputs=output_text,
         fn=describer.describe_image,
-        cache_examples=False
+        cache_examples=False,
     )
 
     run_button.click(
@@ -197,4 +199,26 @@ with gr.Blocks() as demo:
     )
 
 if __name__ == "__main__":
-    demo.launch()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--server_name",
+        type=str,
+        default="0.0.0.0",
+        help="server name",
+    )
+    parser.add_argument(
+        "--server_port",
+        type=int,
+        default=7860,
+        help="server port",
+    )
+    args = parser.parse_args()
+    demo.queue().launch(
+        server_name=args.server_name,
+        server_port=args.server_port,
+        share=False,
+        allowed_paths=[
+            str(Path(__file__).parents[0]),
+            str(Path(__file__).parents[1]),
+        ],
+    )
