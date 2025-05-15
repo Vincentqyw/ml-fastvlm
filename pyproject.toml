@@ -29,5 +29,8 @@ build = ["build", "twine"]
 [tool.setuptools.packages.find]
 exclude = ["assets*", "benchmark*", "docs", "dist*", "playground*", "scripts*", "tests*"]
 
+[tool.setuptools.package-data]
+llava = ["**/*.json"]
+
 [tool.wheel]
 exclude = ["assets*", "benchmark*", "docs", "dist*", "playground*", "scripts*", "tests*"]
